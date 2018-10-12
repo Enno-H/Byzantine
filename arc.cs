@@ -86,8 +86,9 @@ public class ArcService : INodeService {
             foreach (var msg in msgs) {
                 Console.WriteLine ($"... {msg.Time,3} {0,2} \t> {msg.From,2} {msg.To,2} {msg.Msg}");
             }
-            return new Message[0];
-            //return channel.Messages (msgs);
+            //return new Message[0];
+            channel.sayHello();
+            return channel.Messages (msgs);
            
         } catch (Exception ex) {
             var exmsg = ($"*** Exception {ex.Message}");
@@ -109,6 +110,10 @@ public class ArcService : INodeService {
         Console.Error.WriteLine (exmsg);
         Console.WriteLine (exmsg);
         return null;
+    }
+
+    public void sayHello() {
+        Console.WriteLine("HHHH");
     }
 }
 

@@ -24,6 +24,11 @@ public class ByzService : INodeService
         return null;
     }
 
+    public void sayHello()
+    {
+        Console.WriteLine("Connected");
+    }
+
 }
 
 public class byz
@@ -45,6 +50,7 @@ public class byz
     private static void Main()
     {
         ReadParamater();
+        BuildHost();
     }
 
     private static void ReadParamater()
@@ -85,5 +91,37 @@ public class byz
         IsFaulty = 0;
         */
         Console.WriteLine($"Receive: {MaxIndex}+{MaxLevel}+{Index}+{Init}+{V0}+{IsFaulty}+{FileName}");
+    }
+
+    private static void BuildHost()
+    {
+        WebServiceHost host = null;
+
+        try
+        {
+            var baseAddress = new Uri($"http://localhost:{Index + 8080}/");
+            host = new WebServiceHost(typeof(ByzService), baseAddress);
+            ServiceEndpoint ep = host.AddServiceEndpoint(typeof(INodeService), new WebHttpBinding(), "");
+
+            host.Open();
+
+            var msg = ($"Byz={Index}: {baseAddress}Message?from=?,to=?,msg=?");
+            Console.Error.WriteLine(msg);
+            Console.WriteLine(msg);
+
+            Console.ReadLine();
+            host.Close();
+        }
+        catch (Exception ex)
+        {
+            var msg = ($"*** Exception {ex.Message}");
+            Console.Error.WriteLine(msg);
+            Console.WriteLine(msg);
+            host = null;
+        }
+        finally
+        {
+            if (host != null) ((IDisposable)host).Dispose();
+        }
     }
 }
