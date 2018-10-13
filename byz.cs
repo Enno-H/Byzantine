@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.ServiceModel.Description;
@@ -18,16 +19,32 @@ public class ByzService : INodeService
 
     public Message[] Messages(Message[] imsgs)
     {
-        var exmsg = ($"*** Exception SHOULD NOT HAPPEN!");
+
+        /*var exmsg = ($"*** Exception SHOULD NOT HAPPEN!");
         //Console.Error.WriteLine(exmsg);
         Console.WriteLine(exmsg);
         return null;
+        */
+
+        List<Message> outputList = new List<Message>();
+
+        foreach (var msg in imsgs)
+        {
+
+            //第一次发送
+            if (msg.From == 0)
+            {
+                for (int i = 1; i <= byz.MaxIndex; i++)
+                {
+                    outputList.Add(new Message(msg.Time, byz.Index, i, Convert.ToString(byz.Init)));
+                }
+            }
+        }
+
+        return null;
     }
 
-    public void sayHello()
-    {
-        Console.WriteLine("Connected");
-    }
+
 
 }
 
@@ -43,19 +60,20 @@ public class byz
     public static int V0;
     public static int IsFaulty;
     public static string FileName = "None";
-    public static Dictionary<String, int> EIG;
+    public static Dictionary<string, int> EIG = new Dictionary<string, int>();
 
 
 
     private static void Main()
     {
         ReadParamater();
-        BuildHost();
+        //BuildHost();
+        createEIG();
     }
 
     private static void ReadParamater()
     {
-       
+        /*
         string[] commandLineArgs = Environment.GetCommandLineArgs();
         foreach (string item in commandLineArgs) {
             Console.WriteLine(item);
@@ -81,16 +99,14 @@ public class byz
         if (commandLineArgs.Length >= 8){
             FileName = commandLineArgs[7];
         }
-        
-        /*
+        */
         MaxIndex = 4;
-        MaxLevel = 2;
+        MaxLevel = 4;
         Index = 1;
         Init = 0;
         V0 = 0;
         IsFaulty = 0;
-        */
-        Console.WriteLine($"Receive: {MaxIndex}+{MaxLevel}+{Index}+{Init}+{V0}+{IsFaulty}+{FileName}");
+        EIG.Add("λ", Index);
     }
 
     private static void BuildHost()
@@ -111,6 +127,7 @@ public class byz
 
             Console.ReadLine();
             host.Close();
+
         }
         catch (Exception ex)
         {
@@ -124,4 +141,29 @@ public class byz
             if (host != null) ((IDisposable)host).Dispose();
         }
     }
+
+    private static void createEIG()
+    {
+        AppendString("");
+        Console.WriteLine($"EIG size: {EIG.Count}");
+    }
+
+    private static void AppendString(string str)
+    {
+        for (int i = 1; i <= MaxIndex; i++)
+        {
+            if (!str.Contains(i.ToString()))
+            {
+                string s = str + i;
+                Console.WriteLine(s);
+                EIG.Add(s, -1);
+                if (s.Length < MaxLevel)
+                {
+                    AppendString(s);
+                }
+            }
+        }
+    }
+
+
 }
