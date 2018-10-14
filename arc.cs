@@ -87,7 +87,7 @@ public class ArcService : INodeService {
                 Console.WriteLine ($"... {msg.Time,3} {0,2} \t> {msg.From,2} {msg.To,2} {msg.Msg}");
             }
             //return new Message[0];
-            channel.sayHello();
+            //channel.sayHello();
             return channel.Messages (msgs);
            
         } catch (Exception ex) {
