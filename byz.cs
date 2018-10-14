@@ -26,15 +26,32 @@ public class ByzService : INodeService
         {
 
             //第一次发送
-            if (msg.From == 0)
+            if (msg.From == 0 && byz.IsFaulty == 0)
             {
+               
                 for (int i = 1; i <= byz.MaxIndex; i++)
                 {
                     outputList.Add(new Message(msg.Time, byz.Index, i, Convert.ToString(byz.Init)));
                 }
 
                 return outputList.ToArray();
+              
+               
             }
+            if (msg.From == 0 && byz.IsFaulty == 1)
+            {
+
+                Console.WriteLine("TT");
+                string[] lines = System.IO.File.ReadAllLines(byz.FileName);
+                string line = lines[imsgs[0].Time];
+                string[] outputs = line.Split(' ');
+                for (int i = 1; i <= byz.MaxIndex; i++)
+                {
+                    outputList.Add(new Message(imsgs[0].Time, byz.Index, i, outputs[i - 1]));
+                }
+                return outputList.ToArray();
+            }
+
             //每次都会收到四个消息
             //更新EIG
             int index = 0;
@@ -52,19 +69,40 @@ public class ByzService : INodeService
         if (time < byz.MaxLevel)
         {
             //发送新消息
-            string m = "";
-            foreach (var key in byz.EIG.Keys)
+            if (byz.IsFaulty == 0)
             {
-                if (key.Length == imsgs[0].Time && !key.Contains(byz.Index.ToString()) && !key.Equals("λ"))
+                Console.WriteLine("FFFFFFF");
+                string m = "";
+                foreach (var key in byz.EIG.Keys)
                 {
-                    m = m + byz.EIG[key].ToString();
+                    if (key.Length == imsgs[0].Time && !key.Contains(byz.Index.ToString()) && !key.Equals("λ"))
+                    {
+                        m = m + byz.EIG[key].ToString();
+                    }
+                }
+                for (int i = 1; i <= byz.MaxIndex; i++)
+                {
+                    outputList.Add(new Message(imsgs[0].Time, byz.Index, i, m));
+                }
+
+            }
+            //叛徒
+            else
+            {
+                Console.WriteLine("TTTTTTTT");
+                string[] lines = System.IO.File.ReadAllLines(byz.FileName);
+                string line = lines[imsgs[0].Time];
+                string[] outputs = line.Split(' ');
+                for (int i = 1; i <= byz.MaxIndex; i++)
+                {
+                    outputList.Add(new Message(imsgs[0].Time, byz.Index, i, outputs[i - 1]));
                 }
             }
-            for (int i = 1; i <= byz.MaxIndex; i++)
-            {
-                outputList.Add(new Message(imsgs[0].Time, byz.Index, i, m));
-            }
+
+
         }
+        
+        
         //判断阶段
         else
         {
