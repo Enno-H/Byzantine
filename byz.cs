@@ -124,25 +124,25 @@ public class ByzService : INodeService
             }
 
             int max = Math.Max(Math.Max(sum0, sum1), sum2);
-            if (sum0 == max)
+            if (sum0 == max && sum0 > Math.Max(sum1, sum2))
             {
                 Console.WriteLine($"{str}: 0");
                 return 0;
             }
-            if (sum1 == max)
+            if (sum1 == max && sum1 > Math.Max(sum0, sum2))
             {
                 Console.WriteLine($"{str}: 1");
                 return 1;
             }
-            if (sum2 == max)
+            if (sum2 == max && sum2 > Math.Max(sum0, sum1))
             {
                 Console.WriteLine($"{str}: 2");
                 return 2;
             }
+            Console.WriteLine($"{str}: {byz.V0}");
+            return byz.V0;
 
         }
-
-        return -1;
     }
 
     public void sayHello()
