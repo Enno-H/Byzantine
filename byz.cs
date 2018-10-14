@@ -20,6 +20,7 @@ public class ByzService : INodeService
     public Message[] Messages(Message[] imsgs)
     {
         List<Message> outputList = new List<Message>();
+        int time = imsgs[0].Time;
 
         foreach (var msg in imsgs)
         {
@@ -47,19 +48,101 @@ public class ByzService : INodeService
                 }
             }
         }
-        string m = "";
-        foreach (var key in byz.EIG.Keys)
+        //·¢ËÍ½×¶Î
+        if (time < byz.MaxLevel)
         {
-            if (key.Length == imsgs[0].Time && !key.Contains(byz.Index.ToString()) && !key.Equals("¦Ë"))
+            //·¢ËÍÐÂÏûÏ¢
+            string m = "";
+            foreach (var key in byz.EIG.Keys)
             {
-                m = m + byz.EIG[key].ToString();
+                if (key.Length == imsgs[0].Time && !key.Contains(byz.Index.ToString()) && !key.Equals("¦Ë"))
+                {
+                    m = m + byz.EIG[key].ToString();
+                }
+            }
+            for (int i = 1; i <= byz.MaxIndex; i++)
+            {
+                outputList.Add(new Message(imsgs[0].Time, byz.Index, i, m));
             }
         }
-        for (int i = 1; i <= byz.MaxIndex; i++)
+        //ÅÐ¶Ï½×¶Î
+        else
         {
-            outputList.Add(new Message(imsgs[0].Time, byz.Index, i, m));
+            Evaluate();
+            outputList.Add(new Message(imsgs[0].Time, byz.Index, 0, "Finish"));
         }
+
         return outputList.ToArray();
+    }
+
+    public void Evaluate()
+    {
+        //¸´ÖÆµ×²ã
+        foreach (var key in byz.EIG.Keys)
+        {
+            if (key.Length == byz.MaxLevel)
+            {
+                byz.EIG_eva[key] = byz.EIG[key];
+            }
+        }
+
+        VoteResult("");
+
+    }
+
+    public int VoteResult(string str)
+    {
+        if (str.Length == byz.MaxLevel)
+        {
+            Console.WriteLine($"{str}: {byz.EIG_eva[str]}");
+            return byz.EIG_eva[str];
+        }
+        else
+        {
+            int sum0 = 0;
+            int sum1 = 0;
+            int sum2 = 0;
+            for (int i = 1; i <= byz.MaxIndex; i++)
+            {
+                string childKey = str + i;
+                if (byz.EIG_eva.ContainsKey(childKey))
+                {
+                    int childResult = VoteResult(childKey);
+                    if (childResult == 0)
+                    {
+                        sum0++;
+                    }
+                    if (childResult == 1)
+                    {
+                        sum1++;
+                    }
+                    if (childResult == 2)
+                    {
+                        sum2++;
+                    }
+                }
+            }
+
+            int max = Math.Max(Math.Max(sum0, sum1), sum2);
+            if (sum0 == max)
+            {
+                Console.WriteLine($"{str}: 0");
+                return 0;
+            }
+            if (sum1 == max)
+            {
+                Console.WriteLine($"{str}: 1");
+                return 1;
+            }
+            if (sum2 == max)
+            {
+                Console.WriteLine($"{str}: 2");
+                return 2;
+            }
+
+        }
+
+        return -1;
     }
 
     public void sayHello()
@@ -82,6 +165,8 @@ public class byz
     public static int IsFaulty;
     public static string FileName = "None";
     public static Dictionary<string, int> EIG = new Dictionary<string, int>();
+    public static Dictionary<string, int> EIG_eva = new Dictionary<string, int>();
+
 
     public static Message[] Messages(Message[] imsgs)
     {
@@ -237,6 +322,7 @@ public class byz
                 string s = str + i;
                 //Console.WriteLine(s);
                 EIG.Add(s, -1);
+                EIG_eva.Add(s, -1);
                 if (s.Length < MaxLevel)
                 {
                     AppendString(s);
