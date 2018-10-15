@@ -118,7 +118,13 @@ public class ByzService : INodeService
         {
             if (key.Length == byz.MaxLevel)
             {
-                byz.EIG_eva[key] = byz.EIG[key];
+                if (byz.EIG[key] != 2)
+                {
+                    byz.EIG_eva[key] = byz.EIG[key];
+                }
+                else {
+                    byz.EIG_eva[key] = byz.V0;
+                }
             }
         }
 
