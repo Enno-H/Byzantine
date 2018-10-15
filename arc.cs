@@ -111,10 +111,6 @@ public class ArcService : INodeService {
         Console.WriteLine (exmsg);
         return null;
     }
-
-    public void sayHello() {
-        Console.WriteLine("HHHH");
-    }
 }
 
 public class ArcHost {    

@@ -27,8 +27,4 @@ public interface INodeService {
     [OperationContract(IsOneWay=false)]
     [WebInvoke(RequestFormat=WebMessageFormat.Json,ResponseFormat=WebMessageFormat.Json)]
     Message[] Messages(Message[] msgs);
-
-    [OperationContract()]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    void sayHello();
 }

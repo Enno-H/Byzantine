@@ -71,7 +71,6 @@ public class ByzService : INodeService
             //发送新消息
             if (byz.IsFaulty == 0)
             {
-                Console.WriteLine("FFFFFFF");
                 string m = "";
                 foreach (var key in byz.EIG.Keys)
                 {
@@ -89,7 +88,6 @@ public class ByzService : INodeService
             //叛徒
             else
             {
-                Console.WriteLine("TTTTTTTT");
                 string[] lines = System.IO.File.ReadAllLines(byz.FileName);
                 string line = lines[imsgs[0].Time];
                 string[] outputs = line.Split(' ');
@@ -191,7 +189,7 @@ public class ByzService : INodeService
     public void print() {
         Console.WriteLine($"*0 {byz.Index} {byz.Init}");
         string parent = "*";
-
+        //Print EIG
         for (int i = 1; i <= byz.MaxLevel; i++) {
             string m = i.ToString()+" "+byz.Index.ToString()+ " ";
 
@@ -218,11 +216,40 @@ public class ByzService : INodeService
             Console.WriteLine("*"+m);
             parent = "*";
         }
-    }
 
-    public void sayHello()
-    {
-        Console.WriteLine("HHHH");
+        //Print EIG_eva
+        for (int i = byz.MaxLevel;i >= 1; i--) {
+            string m = (byz.MaxLevel*2+1-i).ToString()+" "+byz.Index.ToString()+" ";
+
+            foreach (var key in byz.EIG_eva.Keys)
+            {
+                if (key.Length == i && !key.Equals("λ"))
+                {
+                    //第一个节点，初始化parent
+                    if (parent.Equals("*"))
+                    {
+                        parent = key.Substring(0, key.Length - 1);
+                        //m = m + byz.EIG[key];
+                    }
+                    //同父节点
+                    if (key.Substring(0, key.Length - 1).Equals(parent))
+                    {
+                        m = m + byz.EIG_eva[key];
+                    }
+                    //异父节点
+                    if (!key.Substring(0, key.Length - 1).Equals(parent))
+                    {
+                        m = m + " " + byz.EIG_eva[key];
+                        parent = key.Substring(0, key.Length - 1);
+                    }
+                }
+            }
+
+            Console.WriteLine("#" +m);
+            parent = "*";
+        }
+
+        Console.WriteLine("#" + (byz.MaxLevel * 2 + 1).ToString() + " " + byz.Index.ToString() + " " + byz.EIG_eva[""]);
     }
 
 }
@@ -269,9 +296,7 @@ public class byz
     {
         
         string[] commandLineArgs = Environment.GetCommandLineArgs();
-        foreach (string item in commandLineArgs) {
-            Console.WriteLine(item);
-        }
+        
         if (commandLineArgs.Length >= 2){
             MaxIndex = int.Parse(commandLineArgs[1]);
         }
@@ -317,9 +342,10 @@ public class byz
 
             host.Open();
 
+            
             var msg = ($"Byz={Index}: {baseAddress}Message?from=?,to=?,msg=?");
-            Console.Error.WriteLine(msg);
             Console.WriteLine(msg);
+            
 
             Console.ReadLine();
             host.Close();
@@ -341,7 +367,7 @@ public class byz
     private static void createEIG()
     {
         AppendString("");
-        Console.WriteLine($"EIG size: {EIG.Count}");
+        //Console.WriteLine($"EIG size: {EIG.Count}");
     }
 
     private static void AppendString(string str)
