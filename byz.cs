@@ -125,6 +125,7 @@ public class ByzService : INodeService
         }
 
         VoteResult("");
+        print();
 
     }
 
@@ -165,21 +166,57 @@ public class ByzService : INodeService
             if (sum0 == max && sum0 > Math.Max(sum1, sum2))
             {
                 Console.WriteLine($"{str}: 0");
+                byz.EIG_eva[str] = 0;
                 return 0;
             }
             if (sum1 == max && sum1 > Math.Max(sum0, sum2))
             {
                 Console.WriteLine($"{str}: 1");
+                byz.EIG_eva[str] = 1;
                 return 1;
             }
             if (sum2 == max && sum2 > Math.Max(sum0, sum1))
             {
                 Console.WriteLine($"{str}: 2");
+                byz.EIG_eva[str] = 2;
                 return 2;
             }
             Console.WriteLine($"{str}: {byz.V0}");
+            byz.EIG_eva[str] = byz.V0;
             return byz.V0;
 
+        }
+    }
+
+    public void print() {
+        Console.WriteLine($"*0 {byz.Index} {byz.Init}");
+        string parent = "*";
+
+        for (int i = 1; i <= byz.MaxLevel; i++) {
+            string m = i.ToString()+" "+byz.Index.ToString()+ " ";
+
+            foreach (var key in byz.EIG.Keys) {
+                if (key.Length == i && !key.Equals("λ")) {
+                    //第一个节点，初始化parent
+                    if (parent.Equals("*")) {
+                        parent = key.Substring(0, key.Length - 1);
+                        //m = m + byz.EIG[key];
+                    }
+                    //同父节点
+                    if (key.Substring(0, key.Length - 1).Equals(parent)) {
+                        m = m + byz.EIG[key];
+                    }
+                    //异父节点
+                    if (!key.Substring(0, key.Length - 1).Equals(parent))
+                    {
+                        m = m + " "+byz.EIG[key];
+                        parent = key.Substring(0, key.Length - 1);
+                    }
+                }
+            }
+
+            Console.WriteLine("*"+m);
+            parent = "*";
         }
     }
 
@@ -205,59 +242,15 @@ public class byz
     public static Dictionary<string, int> EIG = new Dictionary<string, int>();
     public static Dictionary<string, int> EIG_eva = new Dictionary<string, int>();
 
-
-    public static Message[] Messages(Message[] imsgs)
-    {
-        List<Message> outputList = new List<Message>();
-        Console.WriteLine("Receive");
-
-        foreach (var msg in imsgs)
-        {
-
-            //第一次发送
-            if (msg.From == 0)
-            {
-                for (int i = 1; i <= byz.MaxIndex; i++)
-                {
-                    outputList.Add(new Message(msg.Time, byz.Index, i, Convert.ToString(byz.Init)));
-                }
-
-                return outputList.ToArray();
-            }
-            //每次都会收到四个消息
-            //更新EIG
-            int index = 0;
-            var Keys = new List<string>(EIG.Keys);
-            foreach (string key in Keys)
-            {
-                if (key.Length == msg.Time && key[key.Length - 1].ToString().Equals(msg.From.ToString()))
-                {
-                    byz.EIG[key] = int.Parse(msg.Msg[index].ToString());
-                    Console.WriteLine($"{key}-->{byz.EIG[key]}");
-                    index++;
-                }
-            }
-        }
-        string m = "";
-        foreach (var key in byz.EIG.Keys)
-        {
-            if (key.Length == imsgs[0].Time && !key.Contains(byz.Index.ToString()))
-            {
-                m = m + byz.EIG[key].ToString();
-            }
-        }
-        for (int i = 1; i <= byz.MaxIndex; i++)
-        {
-            outputList.Add(new Message(imsgs[0].Time, byz.Index, i, m));
-        }
-        return outputList.ToArray();
-    }
-
     private static void Main()
     {
         ReadParamater();
         createEIG();
         BuildHost();
+        Console.WriteLine("The final result is");
+        foreach (var key in byz.EIG_eva.Keys) {
+            Console.WriteLine($"*{key}--> {EIG[key]}");
+        }
         
         /*
         Message m1 = new Message(1, 1, 1, "0");
