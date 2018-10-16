@@ -3,6 +3,7 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.ServiceModel.Description;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 
 [DataContract]
 public class Message {
@@ -27,4 +28,8 @@ public interface INodeService {
     [OperationContract(IsOneWay=false)]
     [WebInvoke(RequestFormat=WebMessageFormat.Json,ResponseFormat=WebMessageFormat.Json)]
     Message[] Messages(Message[] msgs);
+
+    [OperationContract(IsOneWay = false)]
+    [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+    void Print(List<string> str);
 }

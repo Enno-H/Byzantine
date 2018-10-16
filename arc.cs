@@ -111,11 +111,28 @@ public class ArcService : INodeService {
         Console.WriteLine (exmsg);
         return null;
     }
+
+    public void Print(List<string> PrintList) {
+        ArcHost.OutputList = ArcHost.OutputList.Union(PrintList).ToList<string>();
+        ArcHost.receive++;
+        Console.WriteLine("Receive List");
+        if (ArcHost.receive == ArcService.N) {
+            ArcHost.OutputList.Sort();
+            foreach (var str in ArcHost.OutputList) {
+                Console.WriteLine(str);
+            }
+        }
+    }
 }
 
-public class ArcHost {    
+public class ArcHost {
+
+    public static List<string> OutputList = new List<string>();
+    public static int receive = 0;
+
     public static void Main (string[] args) {
         WebServiceHost host = null;
+        
 
         try {
             var n = int.TryParse (args[0], out ArcService.N);

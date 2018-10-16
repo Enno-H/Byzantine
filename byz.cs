@@ -105,6 +105,7 @@ public class ByzService : INodeService
         else
         {
             Evaluate();
+            SendToArc();
             outputList.Add(new Message(imsgs[0].Time, byz.Index, 0, "Finish"));
         }
 
@@ -130,6 +131,9 @@ public class ByzService : INodeService
 
         VoteResult("");
         print();
+        foreach (var str in byz.PrintList) {
+            Console.WriteLine("$" + str);
+        }
 
     }
 
@@ -194,6 +198,7 @@ public class ByzService : INodeService
 
     public void print() {
         Console.WriteLine($"*0 {byz.Index} {byz.Init}");
+        byz.PrintList.Add("0 " + byz.Index.ToString() + " " + byz.Init.ToString());
         string parent = "*";
         //Print EIG
         for (int i = 1; i <= byz.MaxLevel; i++) {
@@ -220,6 +225,7 @@ public class ByzService : INodeService
             }
 
             Console.WriteLine("*"+m);
+            byz.PrintList.Add(m);
             parent = "*";
         }
 
@@ -252,10 +258,46 @@ public class ByzService : INodeService
             }
 
             Console.WriteLine("#" +m);
+            byz.PrintList.Add(m);
             parent = "*";
         }
 
         Console.WriteLine("#" + (byz.MaxLevel * 2 + 1).ToString() + " " + byz.Index.ToString() + " " + byz.EIG_eva[""]);
+        byz.PrintList.Add((byz.MaxLevel * 2 + 1).ToString() + " " + byz.Index.ToString() + " " + byz.EIG_eva[""]);
+    }
+
+    public void Print(List<string> str) {
+        Console.WriteLine("Shouldn't happen.");
+    }
+
+    public void SendToArc() {
+        WebChannelFactory<INodeService> wcf = null;
+        OperationContextScope scope = null;
+        try
+        {
+            var uri = new Uri($"http://localhost:8090/");
+            wcf = new WebChannelFactory<INodeService>(uri);
+            var channel = wcf.CreateChannel();
+
+            scope = new OperationContextScope((IContextChannel)channel);
+            
+            channel.Print(byz.PrintList);
+
+        }
+        catch (Exception ex)
+        {
+            var exmsg = ($"*** Exception {ex.Message}");
+            Console.Error.WriteLine(exmsg);
+            Console.WriteLine(exmsg);
+            wcf = null;
+            scope = null;
+
+        }
+        finally
+        {
+            if (wcf != null) ((IDisposable)wcf).Dispose();
+            if (scope != null) ((IDisposable)scope).Dispose();
+        }
     }
 
 }
@@ -274,6 +316,7 @@ public class byz
     public static string FileName = "None";
     public static Dictionary<string, int> EIG = new Dictionary<string, int>();
     public static Dictionary<string, int> EIG_eva = new Dictionary<string, int>();
+    public static List<string> PrintList = new List<string>();
 
     private static void Main()
     {
