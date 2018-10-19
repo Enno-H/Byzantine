@@ -115,12 +115,12 @@ public class ArcService : INodeService {
     public void Print(List<string> PrintList) {
         ArcHost.OutputList = ArcHost.OutputList.Union(PrintList).ToList<string>();
         ArcHost.receive++;
-        Console.WriteLine("Receive List");
         if (ArcHost.receive == ArcService.N) {
             ArcHost.OutputList.Sort();
             foreach (var str in ArcHost.OutputList) {
                 Console.WriteLine(str);
             }
+            System.IO.File.WriteAllLines("result.txt", ArcHost.OutputList);
         }
     }
 }

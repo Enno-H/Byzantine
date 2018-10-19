@@ -41,12 +41,13 @@ public class ByzService : INodeService
             if (msg.From == 0 && byz.IsFaulty == 1)
             {
 
-                Console.WriteLine("TT");
+                Console.WriteLine(byz.FileName);
                 string[] lines = System.IO.File.ReadAllLines(byz.FileName);
                 string line = lines[imsgs[0].Time];
                 string[] outputs = line.Split(' ');
                 for (int i = 1; i <= byz.MaxIndex; i++)
                 {
+                    Console.WriteLine($"{imsgs[0].Time}, {byz.Index}, {i}, {outputs[i - 1]}");
                     outputList.Add(new Message(imsgs[0].Time, byz.Index, i, outputs[i - 1]));
                 }
                 return outputList.ToArray();
@@ -131,17 +132,13 @@ public class ByzService : INodeService
 
         VoteResult("");
         print();
-        foreach (var str in byz.PrintList) {
-            Console.WriteLine("$" + str);
-        }
-
     }
 
     public int VoteResult(string str)
     {
         if (str.Length == byz.MaxLevel)
         {
-            Console.WriteLine($"{str}: {byz.EIG_eva[str]}");
+            //Console.WriteLine($"{str}: {byz.EIG_eva[str]}");
             return byz.EIG_eva[str];
         }
         else
@@ -173,23 +170,23 @@ public class ByzService : INodeService
             int max = Math.Max(Math.Max(sum0, sum1), sum2);
             if (sum0 == max && sum0 > Math.Max(sum1, sum2))
             {
-                Console.WriteLine($"{str}: 0");
+                //Console.WriteLine($"{str}: 0");
                 byz.EIG_eva[str] = 0;
                 return 0;
             }
             if (sum1 == max && sum1 > Math.Max(sum0, sum2))
             {
-                Console.WriteLine($"{str}: 1");
+                //Console.WriteLine($"{str}: 1");
                 byz.EIG_eva[str] = 1;
                 return 1;
             }
             if (sum2 == max && sum2 > Math.Max(sum0, sum1))
             {
-                Console.WriteLine($"{str}: 2");
+                //Console.WriteLine($"{str}: 2");
                 byz.EIG_eva[str] = 2;
                 return 2;
             }
-            Console.WriteLine($"{str}: {byz.V0}");
+            //Console.WriteLine($"{str}: {byz.V0}");
             byz.EIG_eva[str] = byz.V0;
             return byz.V0;
 
@@ -197,7 +194,7 @@ public class ByzService : INodeService
     }
 
     public void print() {
-        Console.WriteLine($"*0 {byz.Index} {byz.Init}");
+        Console.WriteLine($"0 {byz.Index} {byz.Init}");
         byz.PrintList.Add("0 " + byz.Index.ToString() + " " + byz.Init.ToString());
         string parent = "*";
         //Print EIG
@@ -224,7 +221,7 @@ public class ByzService : INodeService
                 }
             }
 
-            Console.WriteLine("*"+m);
+            Console.WriteLine(m);
             byz.PrintList.Add(m);
             parent = "*";
         }
@@ -257,12 +254,12 @@ public class ByzService : INodeService
                 }
             }
 
-            Console.WriteLine("#" +m);
+            Console.WriteLine(m);
             byz.PrintList.Add(m);
             parent = "*";
         }
 
-        Console.WriteLine("#" + (byz.MaxLevel * 2 + 1).ToString() + " " + byz.Index.ToString() + " " + byz.EIG_eva[""]);
+        Console.WriteLine((byz.MaxLevel * 2 + 1).ToString() + " " + byz.Index.ToString() + " " + byz.EIG_eva[""]);
         byz.PrintList.Add((byz.MaxLevel * 2 + 1).ToString() + " " + byz.Index.ToString() + " " + byz.EIG_eva[""]);
     }
 
